@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   Post,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -52,7 +51,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Current authenticated user',
   })
-  profile(@Request() req: any) {
-    return this.authService.profile(req.user.userId);
+  profile(@Req() req: any) {
+    return this.authService.profile(req.user.id);
   }
 }
