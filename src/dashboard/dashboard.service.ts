@@ -142,18 +142,14 @@ export class DashboardService {
       this.prisma.task.count({
         where: {
           assigneeId: userId,
-          status: {
-            not: 'TODO',
-          },
+          status: 'TODO',
         },
       }),
 
       this.prisma.task.count({
         where: {
           assigneeId: userId,
-          status: {
-            not: 'IN_PROGRESS',
-          },
+          status: 'IN_PROGRESS',
         },
       }),
 
