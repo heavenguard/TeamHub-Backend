@@ -14,7 +14,7 @@ export class ProjectsService {
   ) {}
 
   async findAll() {
-    return this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       include: {
         owner: {
           select: {
@@ -39,10 +39,21 @@ export class ProjectsService {
             },
           },
         },
+        tasks: true,
 
         _count: {
           select: {
             tasks: true,
+            completedTasks: {
+              where: {
+                status: 'DONE',
+              },
+            },
+            inProgressTasks: {
+              where: {
+                status: 'IN_PROGRESS',
+              },
+            },
           },
         },
       },
@@ -51,10 +62,28 @@ export class ProjectsService {
         createdAt: 'desc',
       },
     });
+
+    return projects.map(project => {
+    const totalTasks = project.tasks.length;
+    const completedTasks = project.tasks.filter(task => task.status === 'DONE').length;
+    
+    // Optionally remove tasks from response if you don't need them
+    const { tasks, ...projectWithoutTasks } = project;
+    
+    return {
+      ...projectWithoutTasks,
+      _count: {
+        ...project._count,
+        tasks: totalTasks,
+        completedTasks: completedTasks,
+        notCompletedTasks: totalTasks-completedTasks
+      },
+    };
+  });
   }
 
   async findMyProjects(userId: string) {
-    return this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       where: {
         OR: [
           {
@@ -94,11 +123,22 @@ export class ProjectsService {
             },
           },
         },
+        tasks: true,
 
         _count: {
           select: {
             tasks: true,
             members: true,
+            completedTasks: {
+              where: {
+                status: 'DONE',
+              },
+            },
+            inProgressTasks: {
+              where: {
+                status: 'IN_PROGRESS',
+              },
+            },
           },
         },
       },
@@ -107,6 +147,24 @@ export class ProjectsService {
         createdAt: 'desc',
       },
     });
+
+    return projects.map(project => {
+    const totalTasks = project.tasks.length;
+    const completedTasks = project.tasks.filter(task => task.status === 'DONE').length;
+    
+    // Optionally remove tasks from response if you don't need them
+    const { tasks, ...projectWithoutTasks } = project;
+    
+    return {
+      ...projectWithoutTasks,
+      _count: {
+        ...project._count,
+        tasks: totalTasks,
+        completedTasks: completedTasks,
+        notCompletedTasks: totalTasks-completedTasks
+      },
+    };
+  });
   }
 
   async findOne(id: string) {
@@ -117,14 +175,6 @@ export class ProjectsService {
 
       include: {
         owner: true,
-
-        members: {
-          include: {
-            user: true,
-          },
-        },
-
-        tasks: true,
       },
     });
 
@@ -136,7 +186,6 @@ export class ProjectsService {
   }
 
   async create(dto: CreateProjectDto, userId: string) {
-    
     const project = await this.prisma.project.create({
       data: {
         name: dto.name,
@@ -155,7 +204,7 @@ export class ProjectsService {
       include: {
         owner: true,
       },
-    })
+    });
     await this.activitiesService.create({
       type: 'PROJECT_CREATED',
       description: `Created project "${project.name}"`,

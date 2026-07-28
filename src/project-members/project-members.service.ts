@@ -163,7 +163,7 @@ export class ProjectMembersService {
     // });
 
     await this.notificationsService.create({
-      userId: id,
+      userId: member.userId,
       type: 'PROJECT',
       title: 'Removed',
       message: `You have been removed from a project`,
