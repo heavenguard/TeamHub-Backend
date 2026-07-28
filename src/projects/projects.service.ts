@@ -43,17 +43,7 @@ export class ProjectsService {
 
         _count: {
           select: {
-            tasks: true,
-            completedTasks: {
-              where: {
-                status: 'DONE',
-              },
-            },
-            inProgressTasks: {
-              where: {
-                status: 'IN_PROGRESS',
-              },
-            },
+            tasks: true
           },
         },
       },
@@ -129,16 +119,6 @@ export class ProjectsService {
           select: {
             tasks: true,
             members: true,
-            completedTasks: {
-              where: {
-                status: 'DONE',
-              },
-            },
-            inProgressTasks: {
-              where: {
-                status: 'IN_PROGRESS',
-              },
-            },
           },
         },
       },
