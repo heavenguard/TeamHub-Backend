@@ -33,7 +33,6 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard,)
   async register(@Body() dto: RegisterDto, @Req() req:any) {
-    console.log("user: ", req.user)
     return this.authService.register(dto, req.user);
   }
 
