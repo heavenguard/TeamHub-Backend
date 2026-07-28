@@ -83,8 +83,11 @@ export class DashboardService {
 
     const [
       totalProjects,
+      myProjects,
       totalTasks,
       completedTasks,
+      todoTasks,
+      inProgressTasks,
       pendingTasks,
       reviewTasks,
       overdueTasks,
@@ -94,7 +97,8 @@ export class DashboardService {
       notifications,
       activities,
     ] = await Promise.all([
-      // Total projects
+      this.prisma.project.count(),
+      
       this.prisma.project.count({
         where: {
           OR: [
@@ -131,6 +135,24 @@ export class DashboardService {
           assigneeId: userId,
           status: {
             not: 'DONE',
+          },
+        },
+      }),
+
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: {
+            not: 'TODO',
+          },
+        },
+      }),
+
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: {
+            not: 'IN_PROGRESS',
           },
         },
       }),
@@ -265,8 +287,11 @@ export class DashboardService {
     return {
       stats: {
         totalProjects,
+        myProjects,
         totalTasks,
         completedTasks,
+        todoTasks,
+        inProgressTasks,
         pendingTasks,
         reviewTasks,
         overdueTasks,
