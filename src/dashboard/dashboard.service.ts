@@ -129,16 +129,6 @@ export class DashboardService {
         },
       }),
 
-      // Pending tasks
-      this.prisma.task.count({
-        where: {
-          assigneeId: userId,
-          status: {
-            not: 'DONE',
-          },
-        },
-      }),
-
       this.prisma.task.count({
         where: {
           assigneeId: userId,
@@ -150,6 +140,16 @@ export class DashboardService {
         where: {
           assigneeId: userId,
           status: 'IN_PROGRESS',
+        },
+      }),
+      
+      // Pending tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: {
+            not: 'DONE',
+          },
         },
       }),
 
