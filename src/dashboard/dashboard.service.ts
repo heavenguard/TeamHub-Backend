@@ -92,6 +92,7 @@ export class DashboardService {
       reviewTasks,
       overdueTasks,
       teamSize,
+      totalMembers,
       unreadNotifications,
       projects,
       notifications,
@@ -182,6 +183,8 @@ export class DashboardService {
           },
         },
       }),
+
+      this.prisma.users.count()
 
       // Unread notifications
       this.prisma.notification.count({
@@ -292,6 +295,7 @@ export class DashboardService {
         reviewTasks,
         overdueTasks,
         teamSize,
+        totalMembers,
         unreadNotifications,
         completionRate:
           totalTasks === 0
