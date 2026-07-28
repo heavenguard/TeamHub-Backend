@@ -17,4 +17,12 @@ export class DashboardController {
   getDashboard(@Req() req: any) {
     return this.dashboardService.getDashboard(req.user.id);
   }
+
+  @Get('my')
+  @ApiOperation({
+    summary: 'Get dashboard data for current user',
+  })
+  findMyDashboard(@Req() req: any) {
+    return this.dashboardService.findMyDashboard(req.user.id);
+  }
 }

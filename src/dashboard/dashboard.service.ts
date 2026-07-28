@@ -77,4 +77,210 @@ export class DashboardService {
       recentActivities,
     };
   }
+
+  async findMyDashboard(userId: string) {
+    const now = new Date();
+
+    const [
+      totalProjects,
+      totalTasks,
+      completedTasks,
+      pendingTasks,
+      reviewTasks,
+      overdueTasks,
+      teamSize,
+      unreadNotifications,
+      projects,
+      notifications,
+      activities,
+    ] = await Promise.all([
+      // Total projects
+      this.prisma.project.count({
+        where: {
+          OR: [
+            { ownerId: userId },
+            {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          ],
+        },
+      }),
+
+      // Total tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+        },
+      }),
+
+      // Completed tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: 'DONE',
+        },
+      }),
+
+      // Pending tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: {
+            not: 'DONE',
+          },
+        },
+      }),
+
+      // Review tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: 'REVIEW',
+        },
+      }),
+
+      // Overdue tasks
+      this.prisma.task.count({
+        where: {
+          assigneeId: userId,
+          status: {
+            not: 'DONE',
+          },
+          dueDate: {
+            lt: now,
+          },
+        },
+      }),
+
+      // Team size (members of projects you own)
+      this.prisma.projectMember.count({
+        where: {
+          project: {
+            ownerId: userId,
+          },
+        },
+      }),
+
+      // Unread notifications
+      this.prisma.notification.count({
+        where: {
+          userId,
+          read: false,
+        },
+      }),
+
+      // Latest 2 projects
+      this.prisma.project.findMany({
+        where: {
+          OR: [
+            { ownerId: userId },
+            {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              role: true,
+            },
+          },
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true,
+                  role: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              tasks: true,
+              members: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 2,
+      }),
+
+      // Latest notifications
+      this.prisma.notification.findMany({
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 5,
+      }),
+
+      // Latest activities
+      this.prisma.activity.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 5,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+          project: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          task: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      stats: {
+        totalProjects,
+        totalTasks,
+        completedTasks,
+        pendingTasks,
+        reviewTasks,
+        overdueTasks,
+        teamSize,
+        unreadNotifications,
+        completionRate:
+          totalTasks === 0
+            ? 0
+            : Math.round((completedTasks / totalTasks) * 100),
+      },
+
+      projects,
+      notifications,
+      activities,
+    };
+  }
 }

@@ -63,6 +63,42 @@ export class TasksController {
     return this.tasksService.findAll(query);
   }
 
+  @Get('my')
+  @ApiOperation({ summary: 'Get my tasks' })
+  findMyTasks(@Req() req: any) {
+    return this.tasksService.findMyTasks(req.user.id);
+  }
+
+  @Get('my/pending')
+  @ApiOperation({ summary: 'Get my pending tasks' })
+  findMyPendingTasks(@Req() req: any) {
+    return this.tasksService.findMyPendingTasks(req.user.id);
+  }
+
+  @Get('my/completed')
+  @ApiOperation({ summary: 'Get my completed tasks' })
+  findMyCompletedTasks(@Req() req: any) {
+    return this.tasksService.findMyCompletedTasks(req.user.id);
+  }
+
+  @Get('project/:projectId')
+  @ApiOperation({ summary: 'Get tasks by project id' })
+  findByProject(@Param('projectId') projectId: string) {
+    return this.tasksService.findByProject(projectId);
+  }
+
+  @Get("my/overdue")
+  @ApiOperation({ summary: 'Get  my overdue tasks' })
+findMyOverdueTasks(@Req() req: any) {
+  return this.tasksService.findMyOverdueTasks(req.user.id);
+}
+
+@Get("my/upcoming")
+  @ApiOperation({ summary: 'Get my upcoming tasks' })
+findUpcomingTasks(@Req() req: any) {
+  return this.tasksService.findUpcomingTasks(req.user.id);
+}
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get One',

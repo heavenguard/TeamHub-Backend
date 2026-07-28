@@ -161,6 +161,113 @@ export class TasksService {
     });
   }
 
+  async findMyTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        assigneeId: userId,
+      },
+      include: {
+        project: true,
+        assignee: true,
+      },
+      orderBy: {
+        dueDate: 'asc',
+      },
+    });
+  }
+
+  async findMyPendingTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        assigneeId: userId,
+        status: {
+          not: 'DONE',
+        },
+      },
+      include: {
+        project: true,
+        assignee: true,
+      },
+      orderBy: {
+        dueDate: 'asc',
+      },
+    });
+  }
+
+  async findMyCompletedTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        assigneeId: userId,
+        status: 'DONE',
+      },
+      include: {
+        project: true,
+        assignee: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+  }
+
+  async findByProject(projectId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        projectId,
+      },
+      include: {
+        assignee: true,
+        project: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findMyOverdueTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        assigneeId: userId,
+        dueDate: {
+          lt: new Date(),
+        },
+        status: {
+          not: 'DONE',
+        },
+      },
+      include: {
+        project: true,
+      },
+    });
+  }
+
+  async findUpcomingTasks(userId: string) {
+    const now = new Date();
+
+    const nextWeek = new Date();
+    nextWeek.setDate(now.getDate() + 7);
+
+    return this.prisma.task.findMany({
+      where: {
+        assigneeId: userId,
+        dueDate: {
+          gte: now,
+          lte: nextWeek,
+        },
+        status: {
+          not: 'DONE',
+        },
+      },
+      include: {
+        project: true,
+      },
+      orderBy: {
+        dueDate: 'asc',
+      },
+    });
+  }
+
   async findOne(id: string) {
     const task = await this.prisma.task.findUnique({
       where: {
