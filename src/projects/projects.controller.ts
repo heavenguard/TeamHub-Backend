@@ -31,20 +31,20 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get Project by ID',
-  })
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
-  }
-
   @Get('my')
   @ApiOperation({
     summary: 'Get All Projects You Are Linked To',
   })
   findMyProjects(@Req() req: any) {
     return this.projectsService.findMyProjects(req.user.id);
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get Project by ID',
+  })
+  findOne(@Param('id') id: string) {
+    return this.projectsService.findOne(id);
   }
 
   @Post()
