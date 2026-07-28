@@ -21,8 +21,8 @@ export class EmailService {
     password:string,
     name:string,
   ){
-
-    await this.transporter.sendMail({
+    try{
+      const info = await this.transporter.sendMail({
 
       from:
       `"TeamHub" <${process.env.EMAIL_USER}>`,
@@ -48,6 +48,10 @@ export class EmailService {
       Please change your password after your first login.
       `
     });
-
+    console.log("Email sent:", info);
+    } catch(error){
+    console.error("Email failed:", error);
+  throw error;
+  }
   }
 }

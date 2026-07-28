@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -30,8 +31,8 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() dto: CreateTaskDto) {
-    return this.tasksService.create(dto, '');
+  create(@Body() dto: CreateTaskDto, @Req() req: any) {
+    return this.tasksService.create(dto, req.user.id);
   }
 
   @Get()
