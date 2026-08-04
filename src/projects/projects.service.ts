@@ -43,7 +43,7 @@ export class ProjectsService {
 
         _count: {
           select: {
-            tasks: true
+            tasks: true,
           },
         },
       },
@@ -118,7 +118,7 @@ export class ProjectsService {
         _count: {
           select: {
             tasks: true,
-            members: true,
+            members: true
           },
         },
       },
